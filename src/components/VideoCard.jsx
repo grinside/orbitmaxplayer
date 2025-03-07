@@ -10,10 +10,8 @@ const VideoCard = (props) => {
 
   useEffect(() => {
     const video = videoRef.current;
-
     if (!video) return;
 
-    // Vérifier si la vidéo est en HLS
     if (Hls.isSupported() && url.endsWith(".m3u8")) {
       const hls = new Hls();
       hls.loadSource(url);
@@ -21,18 +19,15 @@ const VideoCard = (props) => {
 
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         if (autoplay) {
-          video.muted = true; // Permettre l'autoplay sans interaction utilisateur
+          video.muted = true; 
           video.play().catch((err) => console.warn("Autoplay bloqué:", err));
         }
       });
 
-      return () => {
-        hls.destroy();
-      };
+      return () => hls.destroy();
     } else {
-      // Vérifier si autoplay est autorisé
       if (autoplay) {
-        video.muted = true; // Obligatoire pour autoriser l'autoplay
+        video.muted = true;
         video.play().catch((err) => console.warn("Autoplay bloqué:", err));
       }
     }
@@ -53,11 +48,11 @@ const VideoCard = (props) => {
         onClick={onVideoPress}
         ref={(ref) => {
           videoRef.current = ref;
-          setVideoRef(ref);
+          if (setVideoRef) setVideoRef(ref); // ✅ Correction ici
         }}
         loop
-        muted // Important pour l'autoplay
-        playsInline // Evite le passage en plein écran sur iOS
+        muted
+        playsInline
         controls
       >
         {!url.endsWith(".m3u8") && <source src={url} type="video/mp4" />}

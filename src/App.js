@@ -8,7 +8,8 @@ import TopNavbar from "./components/TopNavbar";
 function App() {
   const [videos, setVideos] = useState([]);
   const videoRefs = useRef([]);
-  const [searchMode, setSearchMode] = useState(false); // Mode de recherche activé/désactivé
+  const [searchMode, setSearchMode] = useState(false); // Mode recherche activé/désactivé
+  const [userInteracted, setUserInteracted] = useState(false); // Pour éviter le blocage de lecture
 
   useEffect(() => {
     fetch("/videos.json")
@@ -29,7 +30,7 @@ function App() {
     const handleIntersection = (entries) => {
       entries.forEach((entry) => {
         const videoElement = entry.target;
-        if (entry.isIntersecting) {
+        if (entry.isIntersecting && userInteracted) {
           videoElement.muted = true;
           videoElement.play().catch((err) => console.warn("Lecture bloquée:", err));
         } else {
@@ -47,14 +48,17 @@ function App() {
     return () => {
       observer.disconnect();
     };
-  }, [videos, searchMode]);
+  }, [videos, searchMode, userInteracted]);
 
+  // 🔥 Correction: `setVideoRef` est maintenant défini correctement
   const handleVideoRef = (index) => (ref) => {
-    videoRefs.current[index] = ref;
+    if (ref) {
+      videoRefs.current[index] = ref;
+    }
   };
 
   return (
-    <div className="app">
+    <div className="app" onClick={() => setUserInteracted(true)}>
       <TopNavbar className="top-navbar" />
 
       {/* Bouton pour activer/désactiver le mode recherche */}
@@ -79,7 +83,7 @@ function App() {
               shares={video.shares}
               url={video.url}
               profilePic={video.profilePic}
-              setVideoRef={handleVideoRef(index)}
+              setVideoRef={handleVideoRef(index)} // ✅ Correction ici
               autoplay={index === 0}
             />
           ))}
@@ -92,3 +96,4 @@ function App() {
 }
 
 export default App;
+
