@@ -1,17 +1,42 @@
-import React, { useRef, useEffect } from 'react';
-import FooterLeft from './FooterLeft';
-import FooterRight from './FooterRight';
-import './VideoCard.css';
+import React, { useRef, useEffect } from "react";
+import Hls from "hls.js";
+import FooterLeft from "./FooterLeft";
+import FooterRight from "./FooterRight";
+import "./VideoCard.css";
 
 const VideoCard = (props) => {
   const { url, username, description, song, likes, shares, comments, saves, profilePic, setVideoRef, autoplay } = props;
   const videoRef = useRef(null);
 
   useEffect(() => {
-    if (autoplay) {
-      videoRef.current.play();
+    const video = videoRef.current;
+
+    if (!video) return;
+
+    // Vérifier si la vidéo est en HLS
+    if (Hls.isSupported() && url.endsWith(".m3u8")) {
+      const hls = new Hls();
+      hls.loadSource(url);
+      hls.attachMedia(video);
+
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        if (autoplay) {
+          video.muted = true; // Permettre l'autoplay sans interaction utilisateur
+          video.play().catch((err) => console.warn("Autoplay bloqué:", err));
+        }
+      });
+
+      return () => {
+        hls.destroy();
+      };
+    } else {
+      // Vérifier si autoplay est autorisé
+      if (autoplay) {
+        video.muted = true; // Obligatoire pour autoriser l'autoplay
+        video.play().catch((err) => console.warn("Autoplay bloqué:", err));
+      }
     }
-  }, [autoplay]);
+  }, [url, autoplay]);
 
   const onVideoPress = () => {
     if (videoRef.current.paused) {
@@ -23,7 +48,6 @@ const VideoCard = (props) => {
 
   return (
     <div className="video">
-      {/* The video element */}
       <video
         className="player"
         onClick={onVideoPress}
@@ -32,15 +56,18 @@ const VideoCard = (props) => {
           setVideoRef(ref);
         }}
         loop
-        src={url}
-      ></video>
+        muted // Important pour l'autoplay
+        playsInline // Evite le passage en plein écran sur iOS
+        controls
+      >
+        {!url.endsWith(".m3u8") && <source src={url} type="video/mp4" />}
+      </video>
+
       <div className="bottom-controls">
         <div className="footer-left">
-          {/* The left part of the container */}
           <FooterLeft username={username} description={description} song={song} />
         </div>
         <div className="footer-right">
-          {/* The right part of the container */}
           <FooterRight likes={likes} shares={shares} comments={comments} saves={saves} profilePic={profilePic} />
         </div>
       </div>
@@ -49,3 +76,4 @@ const VideoCard = (props) => {
 };
 
 export default VideoCard;
+
