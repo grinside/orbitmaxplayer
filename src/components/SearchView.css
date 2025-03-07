@@ -1,0 +1,42 @@
+.search-view {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.video-container {
+  display: flex;
+  transition: transform 0.3s ease-in-out;
+  width: 100vw;
+}
+
+.video-wrapper {
+  min-width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Style du bouton pour basculer entre les modes */
+.search-toggle {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  padding: 10px 15px;
+  background: #ff2d55;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  z-index: 10;
+  transition: background 0.3s;
+}
+
+.search-toggle:hover {
+  background: #e60040;
+}

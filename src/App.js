@@ -1,34 +1,37 @@
-import React, { useEffect, useState, useRef } from 'react';
-import './App.css';
-import VideoCard from './components/VideoCard';
-import BottomNavbar from './components/BottomNavbar';
-import TopNavbar from './components/TopNavbar';
+import React, { useEffect, useState, useRef } from "react";
+import "./App.css";
+import VideoCard from "./components/VideoCard";
+import SearchView from "./components/SearchView";
+import BottomNavbar from "./components/BottomNavbar";
+import TopNavbar from "./components/TopNavbar";
 
 function App() {
   const [videos, setVideos] = useState([]);
   const videoRefs = useRef([]);
+  const [searchMode, setSearchMode] = useState(false); // Mode de recherche activé/désactivé
 
   useEffect(() => {
-    // Charger les vidéos depuis videos.json
-    fetch('/videos.json')
+    fetch("/videos.json")
       .then((response) => response.json())
       .then((data) => setVideos(data))
       .catch((error) => console.error("Erreur de chargement des vidéos:", error));
   }, []);
 
   useEffect(() => {
+    if (searchMode) return; // Désactiver l'autoplay en mode recherche
+
     const observerOptions = {
       root: null,
-      rootMargin: '0px',
-      threshold: 0.8, // Ajuste ce seuil pour changer le déclenchement du scroll
+      rootMargin: "0px",
+      threshold: 0.8,
     };
 
     const handleIntersection = (entries) => {
       entries.forEach((entry) => {
         const videoElement = entry.target;
         if (entry.isIntersecting) {
-          videoElement.muted = true; // Permet l'autoplay sur Chrome et Safari
-          videoElement.play().catch((err) => console.log("Lecture bloquée:", err));
+          videoElement.muted = true;
+          videoElement.play().catch((err) => console.warn("Lecture bloquée:", err));
         } else {
           videoElement.pause();
         }
@@ -44,7 +47,7 @@ function App() {
     return () => {
       observer.disconnect();
     };
-  }, [videos]);
+  }, [videos, searchMode]);
 
   const handleVideoRef = (index) => (ref) => {
     videoRefs.current[index] = ref;
@@ -52,27 +55,38 @@ function App() {
 
   return (
     <div className="app">
-      <div className="container">
-        <TopNavbar className="top-navbar" />
-        {/* Charger dynamiquement les vidéos depuis JSON */}
-        {videos.map((video, index) => (
-          <VideoCard
-            key={index}
-            username={video.username}
-            description={video.description}
-            song={video.song}
-            likes={video.likes}
-            saves={video.saves}
-            comments={video.comments}
-            shares={video.shares}
-            url={video.url}
-            profilePic={video.profilePic}
-            setVideoRef={handleVideoRef(index)}
-            autoplay={index === 0}
-          />
-        ))}
-        <BottomNavbar className="bottom-navbar" />
-      </div>
+      <TopNavbar className="top-navbar" />
+
+      {/* Bouton pour activer/désactiver le mode recherche */}
+      <button className="search-toggle" onClick={() => setSearchMode(!searchMode)}>
+        {searchMode ? "Retour au Feed" : "Recherche 🔍"}
+      </button>
+
+      {/* Affichage conditionnel : mode recherche ou mode classique */}
+      {searchMode ? (
+        <SearchView videos={videos} />
+      ) : (
+        <div className="container">
+          {videos.map((video, index) => (
+            <VideoCard
+              key={index}
+              username={video.username}
+              description={video.description}
+              song={video.song}
+              likes={video.likes}
+              saves={video.saves}
+              comments={video.comments}
+              shares={video.shares}
+              url={video.url}
+              profilePic={video.profilePic}
+              setVideoRef={handleVideoRef(index)}
+              autoplay={index === 0}
+            />
+          ))}
+        </div>
+      )}
+
+      <BottomNavbar className="bottom-navbar" />
     </div>
   );
 }
