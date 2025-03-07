@@ -1,54 +1,62 @@
 import React, { useRef, useEffect } from "react";
-import videojs from "video.js";
-import "video.js/dist/video-js.css";
-import "videojs-contrib-ads";
-import "videojs-ima";
+import Hls from "hls.js";
 import FooterLeft from "./FooterLeft";
 import FooterRight from "./FooterRight";
 import "./VideoCard.css";
 
-const VideoCard = (props) => {
-  const { url, username, description, song, likes, shares, comments, saves, profilePic } = props;
+const VideoCard = ({ url, username, description, song, likes, shares, comments, saves, profilePic, setVideoRef, autoplay }) => {
   const videoRef = useRef(null);
 
-  // ✅ URL de la pub VAST (Revive Adserver)
-  const adUrl = "https://ad.maxit.live/www/delivery/fc.php?script=apVideo:vast2&zoneid=4";
-
   useEffect(() => {
-    if (!videoRef.current) return;
+    const video = videoRef.current;
+    if (!video) return;
 
-    const playerInstance = videojs(videoRef.current, {
-      controls: true,
-      autoplay: false,
-      muted: true,
-      playsInline: true,
-      preload: "auto",
-      loop: false,
-      techOrder: ["html5"],
-      sources: [{ src: url, type: "video/mp4" }],
-    });
+    let hlsInstance = null;
 
-    // 🔹 Intégration de la pub VAST via IMA
-    playerInstance.ima({
-      adTagUrl: adUrl,
-      debug: true,
-    });
+    if (Hls.isSupported() && url.endsWith(".m3u8")) {
+      hlsInstance = new Hls();
+      hlsInstance.loadSource(url);
+      hlsInstance.attachMedia(video);
 
-    playerInstance.on("ads-ad-ended", () => {
-      console.log("Pub terminée, affichage de la vidéo");
-      playerInstance.play();
-    });
+      hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+        if (autoplay) {
+          video.muted = true;
+          video.play().catch((err) => console.warn("Autoplay bloqué:", err));
+        }
+      });
+    } else if (autoplay) {
+      video.muted = true;
+      video.play().catch((err) => console.warn("Autoplay bloqué:", err));
+    }
 
     return () => {
-      if (playerInstance) {
-        playerInstance.dispose();
+      if (hlsInstance) {
+        hlsInstance.destroy();
       }
     };
-  }, [url]);
+  }, [url, autoplay]);
+
+  const onVideoPress = () => {
+    if (!videoRef.current) return;
+    videoRef.current.paused ? videoRef.current.play() : videoRef.current.pause();
+  };
 
   return (
     <div className="video">
-      <video ref={videoRef} className="video-js vjs-default-skin" />
+      <video
+        className="player"
+        onClick={onVideoPress}
+        ref={(ref) => {
+          videoRef.current = ref;
+          if (setVideoRef) setVideoRef(ref);
+        }}
+        loop
+        muted
+        playsInline
+        controls
+      >
+        {!url.endsWith(".m3u8") && <source src={url} type="video/mp4" />}
+      </video>
 
       <div className="bottom-controls">
         <div className="footer-left">
