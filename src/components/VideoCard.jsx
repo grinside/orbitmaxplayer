@@ -1,5 +1,8 @@
 import React, { useRef, useEffect, useState } from "react";
-import Hls from "hls.js";
+import videojs from "video.js";
+import "video.js/dist/video-js.css";
+import "videojs-contrib-ads"; // Gestion des pubs
+import "videojs-ima"; // Plugin VAST
 import FooterLeft from "./FooterLeft";
 import FooterRight from "./FooterRight";
 import "./VideoCard.css";
@@ -7,68 +10,56 @@ import "./VideoCard.css";
 const VideoCard = (props) => {
   const { url, username, description, song, likes, shares, comments, saves, profilePic, autoplay } = props;
   const videoRef = useRef(null);
-  const adVideoRef = useRef(null);
-  const [showAd, setShowAd] = useState(true); // Par défaut, afficher la pub
+  const [player, setPlayer] = useState(null);
+  const [showAd, setShowAd] = useState(true);
 
-  // 🔹 URL de la pub Revive Adserver (à remplacer par ton vrai tag VAST)
+  // ✅ URL de la pub VAST (Revive Adserver)
   const adUrl = "https://ad.maxit.live/www/delivery/fc.php?script=apVideo:vast2&zoneid=4";
 
   useEffect(() => {
-    const video = videoRef.current;
-    const adVideo = adVideoRef.current;
+    if (!videoRef.current) return;
 
-    if (!video || !adVideo) return;
+    // ⚡ Initialisation du lecteur Video.js
+    const videoJsOptions = {
+      controls: true,
+      autoplay: false,
+      muted: true,
+      playsInline: true,
+      preload: "auto",
+      loop: false,
+      techOrder: ["html5"],
+      sources: [{ src: url, type: "video/mp4" }],
+    };
 
-    // 🔸 Charger la pub en premier
-    if (showAd) {
-      adVideo.src = adUrl;
-      adVideo.play()
-        .catch((err) => console.warn("Autoplay de la pub bloqué:", err));
+    const playerInstance = videojs(videoRef.current, videoJsOptions, () => {
+      console.log("Lecteur Video.js chargé");
+    });
 
-      adVideo.onended = () => {
-        setShowAd(false); // Passer à la vraie vidéo
-        video.play().catch((err) => console.warn("Autoplay de la vidéo bloqué:", err));
-      };
-    }
+    // 🔹 Ajout du plugin IMA pour gérer la pub
+    playerInstance.ima({
+      adTagUrl: adUrl,
+      debug: true, // Permet de voir les logs de l'ads manager
+    });
+
+    // 🔹 Gérer la fin de la pub
+    playerInstance.on("ads-ad-ended", () => {
+      console.log("Pub terminée, affichage de la vidéo");
+      setShowAd(false); // Masquer la pub après sa lecture
+      playerInstance.play(); // Lancer la vidéo principale
+    });
+
+    setPlayer(playerInstance);
 
     return () => {
-      if (adVideo) {
-        adVideo.pause();
+      if (playerInstance) {
+        playerInstance.dispose();
       }
     };
-  }, [showAd]);
-
-  const onVideoPress = () => {
-    if (showAd) {
-      adVideoRef.current.paused ? adVideoRef.current.play() : adVideoRef.current.pause();
-    } else {
-      videoRef.current.paused ? videoRef.current.play() : videoRef.current.pause();
-    }
-  };
+  }, [url]);
 
   return (
     <div className="video">
-      {showAd ? (
-        <video
-          className="player"
-          ref={adVideoRef}
-          muted
-          playsInline
-          controls
-        />
-      ) : (
-        <video
-          className="player"
-          onClick={onVideoPress}
-          ref={videoRef}
-          loop
-          muted
-          playsInline
-          controls
-        >
-          {!url.endsWith(".m3u8") && <source src={url} type="video/mp4" />}
-        </video>
-      )}
+      <video ref={videoRef} className="video-js vjs-default-skin" />
 
       <div className="bottom-controls">
         <div className="footer-left">
@@ -83,3 +74,4 @@ const VideoCard = (props) => {
 };
 
 export default VideoCard;
+
