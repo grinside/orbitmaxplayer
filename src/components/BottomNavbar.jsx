@@ -1,7 +1,7 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse, faUserFriends, faInbox, fa7, faUser } from '@fortawesome/free-solid-svg-icons';
-import maxitLogo from '../../public/logo.png'; // 📌 Assure-toi que le chemin du logo est correct
+import maxitLogo from '../asset/logo.png'; // 📌 Assure-toi que le chemin du logo est correct
 
 function BottomNavbar() {
   return (
