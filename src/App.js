@@ -2,14 +2,29 @@ import React, { useEffect, useState, useRef } from "react";
 import "./App.css";
 import VideoCard from "./components/VideoCard";
 import SearchView from "./components/SearchView";
+import AIOverlay from "./components/AIOverlay";
 import BottomNavbar from "./components/BottomNavbar";
 import TopNavbar from "./components/TopNavbar";
+import SplashScreen from "./components/SplashScreen";
 
 function App() {
   const [videos, setVideos] = useState([]);
   const videoRefs = useRef([]);
   const [searchMode, setSearchMode] = useState(false); // Mode recherche activé/désactivé
   const [userInteracted, setUserInteracted] = useState(false); // Pour éviter le blocage de lecture
+  const categories = ["Sport", "Musique", "Actualités", "Divertissement"];
+  const [showSplash, setShowSplash] = useState(true);
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/service-worker.js')
+    .then(reg => console.log('Service Worker enregistré !', reg))
+    .catch(err => console.error('Erreur Service Worker :', err));
+}
+useEffect(() => {
+  setTimeout(() => setShowSplash(false), 3000);
+}, []);
+
+return showSplash ? <SplashScreen onFinish={() => setShowSplash(false)} /> : <AppContent />;
 
   useEffect(() => {
     fetch("/videos.json")
@@ -60,7 +75,7 @@ function App() {
   return (
     <div className="app" onClick={() => setUserInteracted(true)}>
       <TopNavbar className="top-navbar" />
-
+      <AIOverlay />
       {/* Bouton pour activer/désactiver le mode recherche */}
       <button className="search-toggle" onClick={() => setSearchMode(!searchMode)}>
         {searchMode ? "Retour au Feed" : "Recherche 🔍"}
@@ -68,7 +83,7 @@ function App() {
 
       {/* Affichage conditionnel : mode recherche ou mode classique */}
       {searchMode ? (
-        <SearchView videos={videos} />
+        <SearchView videos={videos} categories={categories} />
       ) : (
         <div className="container">
           {videos.map((video, index) => (
