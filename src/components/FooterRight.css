@@ -1,8 +1,14 @@
 .footer-right {
-  z-index: 100;
+  position: absolute; /* Permet de le superposer à la vidéo */
+  right: 10px;
+  top: 50%; /* Ajuste selon ton design */
+  transform: translateY(-50%);
+  z-index: 999; /* Assure qu'il passe au-dessus des autres éléments */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   color: #fff;
   margin-right: 5px;
-  margin-bottom: 25px;
 }
 
 .sidebar-icon {
@@ -49,7 +55,7 @@
 .record img {
   width: 35px;
   height: 35px;
-  padding: 5px;;
+  padding: 5px;
   border-radius: 50px;
   background-color: #b3afaf;
 }

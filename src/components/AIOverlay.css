@@ -11,6 +11,7 @@
   font-size: 20px;
   cursor: pointer;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  z-index: 1001;
 }
 
 .ai-overlay {
@@ -23,7 +24,15 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 3000; /* Augmentation du z-index pour être sûr qu'il passe bien au-dessus de tout */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+
+.ai-overlay.active {
+  opacity: 1;
+  visibility: visible;
 }
 
 .ai-overlay iframe {
@@ -45,4 +54,5 @@
   height: 30px;
   font-size: 18px;
   cursor: pointer;
+  z-index: 3001;
 }
