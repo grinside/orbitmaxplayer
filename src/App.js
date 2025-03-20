@@ -10,19 +10,20 @@ import SplashScreen from "./components/SplashScreen";
 function App() {
   const [videos, setVideos] = useState([]);
   const videoRefs = useRef([]);
-  const [searchMode, setSearchMode] = useState(false); // Mode recherche activé/désactivé
-  const [userInteracted, setUserInteracted] = useState(false); // Pour éviter le blocage de lecture
+  const [searchMode, setSearchMode] = useState(false);
+  const [userInteracted, setUserInteracted] = useState(false);
   const categories = ["Sport", "Musique", "Actualités", "Divertissement"];
   const [showSplash, setShowSplash] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [installPrompt, setInstallPrompt] = useState(null);
 
   useEffect(() => {
-    setIsMobile(window.innerWidth <= 768);
+    window.addEventListener("resize", () => setIsMobile(window.innerWidth <= 768));
   }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => setShowSplash(false), 3000);
-    return () => clearTimeout(timer); // Nettoyage du timer
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -33,7 +34,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (searchMode) return; // Désactiver l'autoplay en mode recherche
+    if (searchMode) return;
 
     const observerOptions = {
       root: null,
@@ -64,20 +65,40 @@ function App() {
     };
   }, [videos, searchMode, userInteracted]);
 
-  // 🔥 Correction: `setVideoRef` est maintenant défini correctement
   const handleVideoRef = (index) => (ref) => {
     if (ref) {
       videoRefs.current[index] = ref;
     }
   };
 
-  if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js', { type: "module" })
-      .then(reg => console.log('Service Worker enregistré avec succès !', reg))
-      .catch(err => console.error('Erreur Service Worker :', err));
-  });
-}
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js', { type: "module" })
+          .then(reg => console.log('Service Worker enregistré avec succès !', reg))
+          .catch(err => console.error('Erreur Service Worker :', err));
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("beforeinstallprompt", (event) => {
+      event.preventDefault();
+      setInstallPrompt(event);
+    });
+  }, []);
+
+  const handleInstallClick = () => {
+    if (installPrompt) {
+      installPrompt.prompt();
+      installPrompt.userChoice.then((choice) => {
+        if (choice.outcome === "accepted") {
+          console.log("L'utilisateur a installé l'application.");
+        }
+        setInstallPrompt(null);
+      });
+    }
+  };
 
   return showSplash ? (
     <SplashScreen onFinish={() => setShowSplash(false)} />
@@ -85,7 +106,6 @@ function App() {
     <div className="app" onClick={() => setUserInteracted(true)}>
       <TopNavbar className="top-navbar" />
       <AIOverlay isMobile={isMobile} />
-      {/* Bouton pour activer/désactiver le mode recherche */}
       <button className="search-toggle" onClick={(e) => {
         e.stopPropagation();
         setSearchMode(!searchMode);
@@ -93,7 +113,12 @@ function App() {
         {searchMode ? "Retour au Feed" : "Recherche 🔍"}
       </button>
 
-      {/* Affichage conditionnel : mode recherche ou mode classique */}
+      {installPrompt && (
+        <button onClick={handleInstallClick} className="install-button">
+          📲 Installer OrbitMax
+        </button>
+      )}
+
       {searchMode ? (
         <SearchView videos={videos} categories={categories} />
       ) : (
@@ -110,7 +135,7 @@ function App() {
               shares={video.shares}
               url={video.url}
               profilePic={video.profilePic}
-              setVideoRef={handleVideoRef(index)} // ✅ Correction ici
+              setVideoRef={handleVideoRef(index)}
               autoplay={index === 0}
             />
           ))}
