@@ -6,32 +6,26 @@ import AIOverlay from "./components/AIOverlay";
 import BottomNavbar from "./components/BottomNavbar";
 import TopNavbar from "./components/TopNavbar";
 import SplashScreen from "./components/SplashScreen";
-import Recommendations from "./components/Recommendations";
-import { useSwipeable } from "react-swipeable";
 
 function App() {
   const [videos, setVideos] = useState([]);
   const videoRefs = useRef([]);
   const [searchMode, setSearchMode] = useState(false);
-  const [showRecommendations, setShowRecommendations] = useState(false);
   const [userInteracted, setUserInteracted] = useState(false);
   const categories = ["Sport", "Musique", "Actualités", "Divertissement"];
   const [showSplash, setShowSplash] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [installPrompt, setInstallPrompt] = useState(null);
 
-  // 🔹 Détection du redimensionnement d'écran
   useEffect(() => {
     window.addEventListener("resize", () => setIsMobile(window.innerWidth <= 768));
   }, []);
 
-  // 🔹 Affichage du SplashScreen
   useEffect(() => {
     const timer = setTimeout(() => setShowSplash(false), 3000);
     return () => clearTimeout(timer);
   }, []);
 
-  // 🔹 Chargement des vidéos
   useEffect(() => {
     fetch("/videos.json")
       .then((response) => response.json())
@@ -39,9 +33,8 @@ function App() {
       .catch((error) => console.error("Erreur de chargement des vidéos:", error));
   }, []);
 
-  // 🔹 Gestion de l'autoplay des vidéos
   useEffect(() => {
-    if (searchMode || showRecommendations) return;
+    if (searchMode) return;
 
     const observerOptions = {
       root: null,
@@ -70,55 +63,55 @@ function App() {
     return () => {
       observer.disconnect();
     };
-  }, [videos, searchMode, showRecommendations, userInteracted]);
+  }, [videos, searchMode, userInteracted]);
 
-  // 🔹 Enregistrement du Service Worker pour la PWA
+  const handleVideoRef = (index) => (ref) => {
+    if (ref) {
+      videoRefs.current[index] = ref;
+    }
+  };
+
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/service-worker.js', { type: "module" })
-          .then(reg => console.log('✅ Service Worker enregistré avec succès !', reg))
-          .catch(err => console.error('❌ Erreur Service Worker :', err));
+          .then(reg => console.log('Service Worker enregistré avec succès !', reg))
+          .catch(err => console.error('Erreur Service Worker :', err));
       });
     }
   }, []);
 
-  // 🔹 Détection de l'événement "beforeinstallprompt" pour la PWA
   useEffect(() => {
     window.addEventListener("beforeinstallprompt", (event) => {
       event.preventDefault();
-      console.log("📲 Événement beforeinstallprompt capté !");
       setInstallPrompt(event);
     });
   }, []);
 
-  // 🔹 Lancer l'installation de la PWA
   const handleInstallClick = () => {
     if (installPrompt) {
       installPrompt.prompt();
       installPrompt.userChoice.then((choice) => {
         if (choice.outcome === "accepted") {
-          console.log("✅ L'utilisateur a installé l'application.");
+          console.log("L'utilisateur a installé l'application.");
         }
         setInstallPrompt(null);
       });
     }
   };
 
-  // 🔹 Gestion des swipes
-  const handlers = useSwipeable({
-    onSwipedLeft: () => setShowRecommendations(true),
-    onSwipedRight: () => setShowRecommendations(false),
-    preventScrollOnSwipe: true,
-    trackMouse: true,
-  });
-
   return showSplash ? (
     <SplashScreen onFinish={() => setShowSplash(false)} />
   ) : (
-    <div className="app" onClick={() => setUserInteracted(true)} {...handlers}>
+    <div className="app" onClick={() => setUserInteracted(true)}>
       <TopNavbar className="top-navbar" />
       <AIOverlay isMobile={isMobile} />
+      <button className="search-toggle" onClick={(e) => {
+        e.stopPropagation();
+        setSearchMode(!searchMode);
+      }}>
+        {searchMode ? "Retour au Feed" : "Recherche 🔍"}
+      </button>
 
       {installPrompt && (
         <button onClick={handleInstallClick} className="install-button">
@@ -126,9 +119,7 @@ function App() {
         </button>
       )}
 
-      {showRecommendations ? (
-        <Recommendations />
-      ) : searchMode ? (
+      {searchMode ? (
         <SearchView videos={videos} categories={categories} />
       ) : (
         <div className="container">
@@ -144,6 +135,7 @@ function App() {
               shares={video.shares}
               url={video.url}
               profilePic={video.profilePic}
+              setVideoRef={handleVideoRef(index)}
               autoplay={index === 0}
             />
           ))}
