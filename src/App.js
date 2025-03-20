@@ -15,16 +15,19 @@ function App() {
   const categories = ["Sport", "Musique", "Actualités", "Divertissement"];
   const [showSplash, setShowSplash] = useState(true);
 
+useEffect(() => {
+    const timer = setTimeout(() => setShowSplash(false), 3000);
+    return () => clearTimeout(timer); // Nettoyage du timer
+  }, []);
+
+  return showSplash ? <SplashScreen onFinish={() => setShowSplash(false)} /> : <MainApp />;
+}
+
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/service-worker.js')
     .then(reg => console.log('Service Worker enregistré !', reg))
     .catch(err => console.error('Erreur Service Worker :', err));
 }
-useEffect(() => {
-  setTimeout(() => setShowSplash(false), 3000);
-}, []);
-
-return showSplash ? <SplashScreen onFinish={() => setShowSplash(false)} /> : <AppContent />;
 
   useEffect(() => {
     fetch("/videos.json")
