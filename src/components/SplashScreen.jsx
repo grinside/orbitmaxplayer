@@ -1,29 +1,31 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./SplashScreen.css";
 import logo from "../asset/logo.png";
 import splashSound from "../asset/splash.mp3";
 
 const SplashScreen = ({ onFinish }) => {
   const [fadeOut, setFadeOut] = useState(false);
+  const audioRef = useRef(new Audio(splashSound));
+  const [userInteracted, setUserInteracted] = useState(false);
 
   useEffect(() => {
-    const audio = new Audio(splashSound);
-    
-    const playSound = () => {
+    const audio = audioRef.current;
+
+    if (userInteracted) {
+      audio.volume = 1;
       audio.play().catch(() => console.warn("Son bloqué par le navigateur"));
-    };
-    
-    document.addEventListener("click", playSound, { once: true }); // Attendre un clic utilisateur pour jouer le son
-    
+    }
+
     setTimeout(() => setFadeOut(true), 2500);
-    setTimeout(() => {
-      document.removeEventListener("click", playSound); // Nettoyer l'écouteur après utilisation
-      onFinish();
-    }, 3000);
-  }, [onFinish]);
+    setTimeout(onFinish, 3000);
+  }, [userInteracted, onFinish]);
 
   return (
-    <div className={`splash-screen ${fadeOut ? "fade-out" : ""}`}>
+    <div 
+      className={`splash-screen ${fadeOut ? "fade-out" : ""}`} 
+      onClick={() => setUserInteracted(true)} // Détecte l'interaction
+      onTouchStart={() => setUserInteracted(true)} // Détecte le toucher mobile
+    >
       <img src={logo} alt="OrbitMax" className="splash-logo" />
     </div>
   );
