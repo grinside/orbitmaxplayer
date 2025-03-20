@@ -79,7 +79,10 @@ function App() {
       <TopNavbar className="top-navbar" />
       <AIOverlay />
       {/* Bouton pour activer/désactiver le mode recherche */}
-      <button className="search-toggle" onClick={() => setSearchMode(!searchMode)}>
+      <button className="search-toggle" onClick={(e) => {
+        e.stopPropagation();
+        setSearchMode(!searchMode);
+      }}>
         {searchMode ? "Retour au Feed" : "Recherche 🔍"}
       </button>
 
