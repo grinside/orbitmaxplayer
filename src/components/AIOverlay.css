@@ -1,17 +1,22 @@
 .ai-button {
   position: fixed;
-  bottom: 80px;
+  bottom: 100px; /* Aligné avec FooterRight */
   right: 20px;
   background: #ff2d55;
   color: white;
   border: none;
   border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  font-size: 20px;
+  width: 55px;
+  height: 55px;
+  font-size: 22px;
   cursor: pointer;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-  z-index: 1001;
+  z-index: 1050; /* Au-dessus des autres éléments */
+  transition: transform 0.2s ease-in-out;
+}
+
+.ai-button:hover {
+  transform: scale(1.1);
 }
 
 .ai-overlay {
@@ -20,11 +25,11 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.5); /* Transparence 50% */
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 3000; /* Augmentation du z-index pour être sûr qu'il passe bien au-dessus de tout */
+  z-index: 3000;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
@@ -40,6 +45,7 @@
   height: 90%;
   border: none;
   border-radius: 10px;
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .ai-close {
@@ -50,9 +56,14 @@
   color: white;
   border: none;
   border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  font-size: 18px;
+  width: 35px;
+  height: 35px;
+  font-size: 20px;
   cursor: pointer;
   z-index: 3001;
+  transition: transform 0.2s ease-in-out;
+}
+
+.ai-close:hover {
+  transform: scale(1.2);
 }
