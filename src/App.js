@@ -15,19 +15,10 @@ function App() {
   const categories = ["Sport", "Musique", "Actualités", "Divertissement"];
   const [showSplash, setShowSplash] = useState(true);
 
-useEffect(() => {
+  useEffect(() => {
     const timer = setTimeout(() => setShowSplash(false), 3000);
     return () => clearTimeout(timer); // Nettoyage du timer
   }, []);
-
-  return showSplash ? <SplashScreen onFinish={() => setShowSplash(false)} /> : <MainApp />;
-}
-
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/service-worker.js')
-    .then(reg => console.log('Service Worker enregistré !', reg))
-    .catch(err => console.error('Erreur Service Worker :', err));
-}
 
   useEffect(() => {
     fetch("/videos.json")
@@ -75,7 +66,15 @@ if ('serviceWorker' in navigator) {
     }
   };
 
-  return (
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(reg => console.log('Service Worker enregistré !', reg))
+      .catch(err => console.error('Erreur Service Worker :', err));
+  }
+
+  return showSplash ? (
+    <SplashScreen onFinish={() => setShowSplash(false)} />
+  ) : (
     <div className="app" onClick={() => setUserInteracted(true)}>
       <TopNavbar className="top-navbar" />
       <AIOverlay />
@@ -114,4 +113,3 @@ if ('serviceWorker' in navigator) {
 }
 
 export default App;
-
