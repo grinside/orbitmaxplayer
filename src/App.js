@@ -6,18 +6,16 @@ import AIOverlay from "./components/AIOverlay";
 import BottomNavbar from "./components/BottomNavbar";
 import TopNavbar from "./components/TopNavbar";
 import SplashScreen from "./components/SplashScreen";
-import Recommendations from "./components/Recommendations";
-import { useSwipeable } from "react-swipeable";
 
 function App() {
   const [videos, setVideos] = useState([]);
   const videoRefs = useRef([]);
   const [searchMode, setSearchMode] = useState(false);
-  const [showRecommendations, setShowRecommendations] = useState(false);
   const [userInteracted, setUserInteracted] = useState(false);
   const categories = ["Sport", "Musique", "Actualités", "Divertissement"];
   const [showSplash, setShowSplash] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [installPrompt, setInstallPrompt] = useState(null);
 
   useEffect(() => {
     window.addEventListener("resize", () => setIsMobile(window.innerWidth <= 768));
@@ -36,7 +34,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (searchMode || showRecommendations) return;
+    if (searchMode) return;
 
     const observerOptions = {
       root: null,
@@ -65,7 +63,7 @@ function App() {
     return () => {
       observer.disconnect();
     };
-  }, [videos, searchMode, showRecommendations, userInteracted]);
+  }, [videos, searchMode, userInteracted]);
 
   const handleVideoRef = (index) => (ref) => {
     if (ref) {
@@ -83,23 +81,45 @@ function App() {
     }
   }, []);
 
-  const handlers = useSwipeable({
-    onSwipedLeft: () => setShowRecommendations(true),
-    onSwipedRight: () => setShowRecommendations(false),
-    preventScrollOnSwipe: true,
-    trackMouse: true,
-  });
+  useEffect(() => {
+    window.addEventListener("beforeinstallprompt", (event) => {
+      event.preventDefault();
+      setInstallPrompt(event);
+    });
+  }, []);
+
+  const handleInstallClick = () => {
+    if (installPrompt) {
+      installPrompt.prompt();
+      installPrompt.userChoice.then((choice) => {
+        if (choice.outcome === "accepted") {
+          console.log("L'utilisateur a installé l'application.");
+        }
+        setInstallPrompt(null);
+      });
+    }
+  };
 
   return showSplash ? (
     <SplashScreen onFinish={() => setShowSplash(false)} />
   ) : (
-    <div className="app" onClick={() => setUserInteracted(true)} {...handlers}>
+    <div className="app" onClick={() => setUserInteracted(true)}>
       <TopNavbar className="top-navbar" />
       <AIOverlay isMobile={isMobile} />
+      <button className="search-toggle" onClick={(e) => {
+        e.stopPropagation();
+        setSearchMode(!searchMode);
+      }}>
+        {searchMode ? "Retour au Feed" : "Recherche 🔍"}
+      </button>
 
-      {showRecommendations ? (
-        <Recommendations />
-      ) : searchMode ? (
+      {installPrompt && (
+        <button onClick={handleInstallClick} className="install-button">
+          📲 Installer OrbitMax
+        </button>
+      )}
+
+      {searchMode ? (
         <SearchView videos={videos} categories={categories} />
       ) : (
         <div className="container">
