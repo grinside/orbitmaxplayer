@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./SplashScreen.css";
-import logo from "../asset/logo.png";
+import logo from "../asset/logotrans.png";
 import splashSound from "../asset/splash.mp3";
 
 const SplashScreen = ({ onFinish }) => {
