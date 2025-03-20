@@ -14,6 +14,11 @@ function App() {
   const [userInteracted, setUserInteracted] = useState(false); // Pour éviter le blocage de lecture
   const categories = ["Sport", "Musique", "Actualités", "Divertissement"];
   const [showSplash, setShowSplash] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth <= 768);
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => setShowSplash(false), 3000);
@@ -77,7 +82,7 @@ function App() {
   ) : (
     <div className="app" onClick={() => setUserInteracted(true)}>
       <TopNavbar className="top-navbar" />
-      <AIOverlay />
+      <AIOverlay isMobile={isMobile} />
       {/* Bouton pour activer/désactiver le mode recherche */}
       <button className="search-toggle" onClick={(e) => {
         e.stopPropagation();
@@ -110,7 +115,7 @@ function App() {
         </div>
       )}
 
-      <BottomNavbar className="bottom-navbar" />
+      <BottomNavbar className="bottom-navbar" style={{ position: "fixed", bottom: 0, width: "100vw", zIndex: 1000 }} />
     </div>
   );
 }
