@@ -72,10 +72,12 @@ function App() {
   };
 
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/service-worker.js')
-      .then(reg => console.log('Service Worker enregistré !', reg))
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js', { type: "module" })
+      .then(reg => console.log('Service Worker enregistré avec succès !', reg))
       .catch(err => console.error('Erreur Service Worker :', err));
-  }
+  });
+}
 
   return showSplash ? (
     <SplashScreen onFinish={() => setShowSplash(false)} />

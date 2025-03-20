@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import './AIOverlay.css';
+import "./AIOverlay.css";
+import React, { useState } from "react";
 
 const AIOverlay = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -9,12 +9,14 @@ const AIOverlay = () => {
       <button className="ai-button" onClick={() => setIsOpen(!isOpen)}>
         🧠 IA
       </button>
-      {isOpen && (
-        <div className="ai-overlay">
-          <iframe src="https://ai.maxit.live" title="AI Assistant" />
-          <button className="ai-close" onClick={() => setIsOpen(false)}>✖</button>
-        </div>
-      )}
+      <div className={`ai-overlay ${isOpen ? "active" : ""}`} style={{ opacity: isOpen ? 0.5 : 0, visibility: isOpen ? "visible" : "hidden", transition: "opacity 0.3s ease-in-out, visibility 0.3s ease-in-out" }}>
+        {isOpen && (
+          <>
+            <button className="ai-close" onClick={() => setIsOpen(false)}>✖</button>
+            <iframe src="https://ai.maxit.live" allow="microphone" className="ai-frame"></iframe>
+          </>
+        )}
+      </div>
     </>
   );
 };

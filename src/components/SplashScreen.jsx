@@ -8,10 +8,18 @@ const SplashScreen = ({ onFinish }) => {
 
   useEffect(() => {
     const audio = new Audio(splashSound);
-    audio.play().catch(() => console.warn("Son bloqué par le navigateur"));
-
+    
+    const playSound = () => {
+      audio.play().catch(() => console.warn("Son bloqué par le navigateur"));
+    };
+    
+    document.addEventListener("click", playSound, { once: true }); // Attendre un clic utilisateur pour jouer le son
+    
     setTimeout(() => setFadeOut(true), 2500);
-    setTimeout(onFinish, 3000);
+    setTimeout(() => {
+      document.removeEventListener("click", playSound); // Nettoyer l'écouteur après utilisation
+      onFinish();
+    }, 3000);
   }, [onFinish]);
 
   return (
