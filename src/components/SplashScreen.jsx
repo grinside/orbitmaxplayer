@@ -1,32 +1,39 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import "./SplashScreen.css";
-import logo from "../asset/logotrans.png";
+import logo from "../asset/logo.png";
 import splashSound from "../asset/splash.mp3";
 
 const SplashScreen = ({ onFinish }) => {
-  const [fadeOut, setFadeOut] = useState(false);
-  const audioRef = useRef(new Audio(splashSound));
-  const [userInteracted, setUserInteracted] = useState(false);
+  const [step, setStep] = useState("login");
+  const usernameRef = useRef(null);
+  const passwordRef = useRef(null);
 
-  useEffect(() => {
-    const audio = audioRef.current;
+  const handleLogin = (e) => {
+    e.preventDefault();
+    const username = usernameRef.current.value;
+    const password = passwordRef.current.value;
 
-    if (userInteracted) {
-      audio.volume = 1;
-      audio.play().catch(() => console.warn("Son bloqué par le navigateur"));
+    // Authentification simple (à sécuriser dans une vraie app)
+    if (username === "admin" && password === "orbitmax") {
+      const audio = new Audio(splashSound);
+      audio.play().catch(() => console.warn("Son bloqué"));
+      setStep("splash");
+      setTimeout(onFinish, 3000);
+    } else {
+      alert("Identifiants incorrects");
     }
-
-    setTimeout(() => setFadeOut(true), 2500);
-    setTimeout(onFinish, 3000);
-  }, [userInteracted, onFinish]);
+  };
 
   return (
-    <div 
-      className={`splash-screen ${fadeOut ? "fade-out" : ""}`} 
-      onClick={() => setUserInteracted(true)} // Détecte l'interaction
-      onTouchStart={() => setUserInteracted(true)} // Détecte le toucher mobile
-    >
+    <div className={`splash-screen ${step === "splash" ? "fade-out" : ""}`}>
       <img src={logo} alt="OrbitMax" className="splash-logo" />
+      {step === "login" && (
+        <form className="login-form" onSubmit={handleLogin}>
+          <input type="text" placeholder="Nom d'utilisateur" ref={usernameRef} required />
+          <input type="password" placeholder="Mot de passe" ref={passwordRef} required />
+          <button type="submit">Entrer</button>
+        </form>
+      )}
     </div>
   );
 };
