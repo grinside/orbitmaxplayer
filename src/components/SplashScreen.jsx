@@ -13,7 +13,6 @@ const SplashScreen = ({ onFinish }) => {
     const username = usernameRef.current.value;
     const password = passwordRef.current.value;
 
-    // Authentification simple (à sécuriser dans une vraie app)
     if (username === "admin" && password === "orbitmax") {
       const audio = new Audio(splashSound);
       audio.play().catch(() => console.warn("Son bloqué"));
@@ -26,13 +25,17 @@ const SplashScreen = ({ onFinish }) => {
 
   return (
     <div className={`splash-screen ${step === "splash" ? "fade-out" : ""}`}>
-      <img src={logo} alt="OrbitMax" className="splash-logo" />
-      {step === "login" && (
-        <form className="login-form" onSubmit={handleLogin}>
-          <input type="text" placeholder="Nom d'utilisateur" ref={usernameRef} required />
-          <input type="password" placeholder="Mot de passe" ref={passwordRef} required />
-          <button type="submit">Entrer</button>
-        </form>
+      {step === "login" ? (
+        <div className="login-container">
+          <img src={logo} alt="OrbitMax" className="login-logo" />
+          <form className="login-form" onSubmit={handleLogin}>
+            <input type="text" placeholder="Nom d'utilisateur" ref={usernameRef} required />
+            <input type="password" placeholder="Mot de passe" ref={passwordRef} required />
+            <button type="submit">Se connecter</button>
+          </form>
+        </div>
+      ) : (
+        <img src={logo} alt="OrbitMax" className="splash-logo" />
       )}
     </div>
   );
