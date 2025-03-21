@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "./SplashScreen.css";
 import logo from "../asset/logo.png";
 import splashSound from "../asset/splash.mp3";
@@ -7,6 +7,7 @@ const SplashScreen = ({ onFinish }) => {
   const [step, setStep] = useState("login");
   const usernameRef = useRef(null);
   const passwordRef = useRef(null);
+  const timeoutRef = useRef(null);
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -17,11 +18,17 @@ const SplashScreen = ({ onFinish }) => {
       const audio = new Audio(splashSound);
       audio.play().catch(() => console.warn("Son bloqué"));
       setStep("splash");
-      setTimeout(onFinish, 3000);
+      timeoutRef.current = setTimeout(onFinish, 3000);
     } else {
       alert("Identifiants incorrects");
     }
   };
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   return (
     <div className={`splash-screen ${step === "splash" ? "fade-out" : ""}`}>
