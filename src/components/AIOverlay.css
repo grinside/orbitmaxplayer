@@ -1,26 +1,10 @@
-.ai-button {
-  position: fixed;
-  bottom: 80px;
-  right: 80px; /* Décaler pour ne pas chevaucher le menu de droite */
-  background: #ff2d55;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  font-size: 20px;
-  cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-  z-index: 1002; /* Plus haut que le menu de droite */
-}
-
 .ai-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.5); /* Ajusté pour être plus transparent */
+  background: rgba(0, 0, 0, 0.5); /* 🔸 Transparence à 50% */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -40,6 +24,7 @@
   height: 90%;
   border: none;
   border-radius: 10px;
+  background-color: white; /* facultatif si l'IA a besoin de lisibilité */
 }
 
 .ai-close {
