@@ -26,10 +26,7 @@ function App() {
   }, []);
 
   // 🔹 Affichage du SplashScreen
-  useEffect(() => {
-    const timer = setTimeout(() => setShowSplash(false), 3000);
-    return () => clearTimeout(timer);
-  }, []);
+ 
 
   // 🔹 Chargement des vidéos
   useEffect(() => {
