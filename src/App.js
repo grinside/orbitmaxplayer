@@ -19,6 +19,7 @@ function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [installPrompt, setInstallPrompt] = useState(null);
+  const [showAI, setShowAI] = useState(false);
 
   // 🔹 Détection du redimensionnement d'écran
   useEffect(() => {
@@ -115,7 +116,8 @@ function App() {
   ) : (
     <div className="app" onClick={() => setUserInteracted(true)} {...handlers}>
       <TopNavbar className="top-navbar" />
-      <AIOverlay isMobile={isMobile} />
+      <AIOverlay isOpen={showAI} onClose={() => setShowAI(false)} />
+      <BottomNavbar onToggleAI={() => setShowAI(prev => !prev)} />
 
       {installPrompt && (
         <button onClick={handleInstallClick} className="install-button">
