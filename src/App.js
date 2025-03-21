@@ -15,21 +15,17 @@ function App() {
   const [searchMode, setSearchMode] = useState(false);
   const [showRecommendations, setShowRecommendations] = useState(false);
   const [userInteracted, setUserInteracted] = useState(false);
-  const categories = ["Sport", "Musique", "Actualités", "Divertissement"];
   const [showSplash, setShowSplash] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [installPrompt, setInstallPrompt] = useState(null);
   const [showAI, setShowAI] = useState(false);
 
-  // 🔹 Détection du redimensionnement d'écran
+  const categories = ["Sport", "Musique", "Actualités", "Divertissement"];
+
   useEffect(() => {
     window.addEventListener("resize", () => setIsMobile(window.innerWidth <= 768));
   }, []);
 
-  // 🔹 Affichage du SplashScreen
- 
-
-  // 🔹 Chargement des vidéos
   useEffect(() => {
     fetch("/videos.json")
       .then((response) => response.json())
@@ -37,7 +33,6 @@ function App() {
       .catch((error) => console.error("Erreur de chargement des vidéos:", error));
   }, []);
 
-  // 🔹 Gestion de l'autoplay des vidéos
   useEffect(() => {
     if (searchMode || showRecommendations) return;
 
@@ -70,7 +65,6 @@ function App() {
     };
   }, [videos, searchMode, showRecommendations, userInteracted]);
 
-  // 🔹 Enregistrement du Service Worker pour la PWA
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -81,7 +75,6 @@ function App() {
     }
   }, []);
 
-  // 🔹 Détection de l'événement "beforeinstallprompt" pour la PWA
   useEffect(() => {
     window.addEventListener("beforeinstallprompt", (event) => {
       event.preventDefault();
@@ -90,7 +83,6 @@ function App() {
     });
   }, []);
 
-  // 🔹 Lancer l'installation de la PWA
   const handleInstallClick = () => {
     if (installPrompt) {
       installPrompt.prompt();
@@ -103,7 +95,6 @@ function App() {
     }
   };
 
-  // 🔹 Gestion des swipes
   const handlers = useSwipeable({
     onSwipedLeft: () => setShowRecommendations(true),
     onSwipedRight: () => setShowRecommendations(false),
@@ -116,8 +107,9 @@ function App() {
   ) : (
     <div className="app" onClick={() => setUserInteracted(true)} {...handlers}>
       <TopNavbar className="top-navbar" />
+
+      {/* Overlay IA intégré, activé via BottomNavbar */}
       <AIOverlay isOpen={showAI} onClose={() => setShowAI(false)} />
-      <BottomNavbar onToggleAI={() => setShowAI(prev => !prev)} />
 
       {installPrompt && (
         <button onClick={handleInstallClick} className="install-button">
@@ -143,13 +135,19 @@ function App() {
               shares={video.shares}
               url={video.url}
               profilePic={video.profilePic}
+              setVideoRef={(ref) => (videoRefs.current[index] = ref)}
               autoplay={index === 0}
             />
           ))}
         </div>
       )}
 
-      <BottomNavbar className="bottom-navbar" style={{ position: "fixed", bottom: 0, width: "100vw", zIndex: 1000 }} />
+      {/* Menu unique en bas avec IA intégrée */}
+      <BottomNavbar
+        className="bottom-navbar"
+        style={{ position: "fixed", bottom: 0, width: "100vw", zIndex: 1000 }}
+        onToggleAI={() => setShowAI((prev) => !prev)}
+      />
     </div>
   );
 }
