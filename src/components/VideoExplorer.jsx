@@ -4,72 +4,79 @@ import VideoCard from "./VideoCard";
 import "./VideoExplorer.css";
 
 const VideoExplorer = ({ groupedVideos }) => {
-  const [groupIndex, setGroupIndex] = useState(0);
-  const [videoIndex, setVideoIndex] = useState(0);
+  const [verticalIndex, setVerticalIndex] = useState(0);
+  const [horizontalIndex, setHorizontalIndex] = useState(0);
+  const [isExploringGroup, setIsExploringGroup] = useState(false);
 
-  const currentGroup = groupedVideos[groupIndex];
-  const currentVideo = currentGroup.items[videoIndex];
+  const initialFeed = groupedVideos.map(group => ({
+    ...group,
+    items: [group.items[0]] // ne garder que le premier contenu de chaque groupe
+  }));
 
-  const nextGroupIndex = (direction) => {
-    const sameCategoryGroups = groupedVideos.filter(
-      (g) => g.category === currentGroup.category && g.type === "chaine"
+  const activeGroup = isExploringGroup
+    ? groupedVideos[verticalIndex]
+    : initialFeed[verticalIndex];
+
+  const activeVideo = activeGroup.items[horizontalIndex];
+
+  const getSiblingsInSameCategory = () => {
+    return groupedVideos.filter(
+      (g) => g.category === activeGroup.category && g.type === "chaine"
     );
-    const currentIndexInCategory = sameCategoryGroups.findIndex(
-      (g) => g.groupId === currentGroup.groupId
-    );
-    const newIndexInCategory = currentIndexInCategory + direction;
-    if (
-      newIndexInCategory >= 0 &&
-      newIndexInCategory < sameCategoryGroups.length
-    ) {
-      const newGroup = sameCategoryGroups[newIndexInCategory];
-      const absoluteIndex = groupedVideos.findIndex(
-        (g) => g.groupId === newGroup.groupId
-      );
-      return absoluteIndex;
+  };
+
+  const getNewGroupIndex = (direction) => {
+    const siblings = getSiblingsInSameCategory();
+    const currentIdx = siblings.findIndex((g) => g.groupId === activeGroup.groupId);
+    const nextIdx = currentIdx + direction;
+    if (nextIdx >= 0 && nextIdx < siblings.length) {
+      const newGroup = siblings[nextIdx];
+      return groupedVideos.findIndex((g) => g.groupId === newGroup.groupId);
     }
-    return groupIndex;
+    return verticalIndex;
   };
 
   const handlers = useSwipeable({
     onSwipedLeft: () => {
-      if (currentGroup.type === "serie") {
-        // Dans une série, swipe horizontal = prochain épisode
-        if (videoIndex < currentGroup.items.length - 1) {
-          setVideoIndex(videoIndex + 1);
+      if (activeGroup.type === "serie") {
+        if (horizontalIndex < activeGroup.items.length - 1) {
+          setHorizontalIndex(horizontalIndex + 1);
+          setIsExploringGroup(true);
         }
       } else {
-        const newIndex = nextGroupIndex(1);
-        if (newIndex !== groupIndex) {
-          setGroupIndex(newIndex);
-          setVideoIndex(0);
+        const newGroupIndex = getNewGroupIndex(1);
+        if (newGroupIndex !== verticalIndex) {
+          setVerticalIndex(newGroupIndex);
+          setHorizontalIndex(0);
+          setIsExploringGroup(true);
         }
       }
     },
     onSwipedRight: () => {
-      if (currentGroup.type === "serie") {
-        // Dans une série, swipe horizontal = épisode précédent
-        if (videoIndex > 0) {
-          setVideoIndex(videoIndex - 1);
+      if (activeGroup.type === "serie") {
+        if (horizontalIndex > 0) {
+          setHorizontalIndex(horizontalIndex - 1);
+          setIsExploringGroup(true);
         }
       } else {
-        const newIndex = nextGroupIndex(-1);
-        if (newIndex !== groupIndex) {
-          setGroupIndex(newIndex);
-          setVideoIndex(0);
+        const newGroupIndex = getNewGroupIndex(-1);
+        if (newGroupIndex !== verticalIndex) {
+          setVerticalIndex(newGroupIndex);
+          setHorizontalIndex(0);
+          setIsExploringGroup(true);
         }
       }
     },
     onSwipedUp: () => {
-      // Vertical swipe : contenu suivant dans le groupe
-      if (videoIndex < currentGroup.items.length - 1) {
-        setVideoIndex(videoIndex + 1);
+      if (!isExploringGroup && verticalIndex < initialFeed.length - 1) {
+        setVerticalIndex(verticalIndex + 1);
+        setHorizontalIndex(0);
       }
     },
     onSwipedDown: () => {
-      // Vertical swipe : contenu précédent
-      if (videoIndex > 0) {
-        setVideoIndex(videoIndex - 1);
+      if (!isExploringGroup && verticalIndex > 0) {
+        setVerticalIndex(verticalIndex - 1);
+        setHorizontalIndex(0);
       }
     },
     preventScrollOnSwipe: true,
@@ -79,9 +86,9 @@ const VideoExplorer = ({ groupedVideos }) => {
   return (
     <div className="video-explorer" {...handlers}>
       <h3 className="group-label">
-        {currentGroup.type === "serie" ? "🎬 Série" : "📺 Chaîne"} – {currentGroup.username}
+        {activeGroup.type === "serie" ? "🎬 Série" : "📺 Chaîne"} – {activeGroup.username}
       </h3>
-      <VideoCard {...currentVideo} autoplay />
+      <VideoCard {...activeVideo} autoplay />
     </div>
   );
 };
