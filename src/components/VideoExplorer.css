@@ -1,13 +1,40 @@
 .video-explorer {
-  width: 100vw;
+  position: relative;
   height: 100vh;
+  width: 100vw;
+  overflow: hidden;
   background-color: black;
-  color: white;
+}
+
+.carousel-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out;
+  will-change: transform, opacity;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .group-label {
-  text-align: center;
-  font-size: 18px;
-  margin: 10px 0;
+  font-size: 16px;
   color: white;
+  padding: 10px 16px;
+  text-align: center;
+  z-index: 10;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
+  font-weight: bold;
+}
+
+.video-explorer video {
+  object-fit: cover;
+  width: 100vw;
+  height: 100vh;
 }

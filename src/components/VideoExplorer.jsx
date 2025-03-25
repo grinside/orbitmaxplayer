@@ -84,11 +84,13 @@ const VideoExplorer = ({ groupedVideos }) => {
   });
 
   return (
-    <div className="video-explorer" {...handlers}>
-      <h3 className="group-label">
-        {activeGroup.type === "serie" ? "🎬 Série" : "📺 Chaîne"} – {activeGroup.username}
-      </h3>
-      <VideoCard {...activeVideo} autoplay />
+    <div className="video-explorer carousel-vertical" {...handlers}>
+ <div className="carousel-slide" key={`${verticalIndex}-${horizontalIndex}`}>
+        <h3 className="group-label">
+          {activeGroup.type === "serie" ? "🎬 Série" : "📺 Chaîne"} – {activeGroup.username}
+        </h3>
+        <VideoCard {...activeVideo} autoplay />
+      </div>
     </div>
   );
 };
