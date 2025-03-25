@@ -11,7 +11,7 @@ import VideoExplorer from "./components/VideoExplorer"; // ✅ Ajouté
 import { useSwipeable } from "react-swipeable";
 
 function App() {
-  const [videos, setVideos] = useState({});
+  const [videos, setVideos] = useState([]);
   const videoRefs = useRef([]);
   const [searchMode, setSearchMode] = useState(false);
   const [showRecommendations, setShowRecommendations] = useState(false);
@@ -32,11 +32,12 @@ function App() {
 
   // 🔹 Charger les vidéos groupées
   useEffect(() => {
-    fetch("/groupedVideos.json")
-      .then((res) => res.json())
-      .then((data) => setVideos(data))
-      .catch((err) => console.error("Erreur de chargement des vidéos :", err));
-  }, []);
+  fetch("/groupedVideos.json")
+    .then((res) => res.json())
+    .then((data) => {
+      setVideos(data); // ⚠️ doit être un tableau []
+    });
+}, []);
 
   // 🔹 Autoplay conditionnel
   useEffect(() => {
