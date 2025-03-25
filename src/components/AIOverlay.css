@@ -24,7 +24,9 @@
   height: 90%;
   border: none;
   border-radius: 10px;
-  background-color: white; /* facultatif si l'IA a besoin de lisibilité */
+  opacity: 0.5;              /* 🔸 Transparence à 50% */
+  background-color: transparent; /* 🔹 Si ton iframe supporte la transparence */
+  pointer-events: auto;      /* 🧩 Facultatif : pour interagir quand même avec l'IA */
 }
 
 .ai-close {

@@ -7,7 +7,6 @@ import BottomNavbar from "./components/BottomNavbar";
 import TopNavbar from "./components/TopNavbar";
 import SplashScreen from "./components/SplashScreen";
 import Recommendations from "./components/Recommendations";
-import VideoExplorer from "./components/VideoExplorer"; // ✅ Ajouté
 import { useSwipeable } from "react-swipeable";
 
 function App() {
@@ -23,22 +22,21 @@ function App() {
 
   const categories = Object.keys(videos); // Dynamique selon contenu JSON
 
-  // 🔹 Gérer le redimensionnement
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // 🔹 Charger les vidéos groupées
   useEffect(() => {
-    fetch("/groupedVideos.json")
-      .then((res) => res.json())
+    fetch("/videos.json")
+      .then((response) => response.json())
       .then((data) => setVideos(data))
-      .catch((err) => console.error("Erreur de chargement des vidéos :", err));
+      .catch((error) => console.error("Erreur de chargement des vidéos:", error));
   }, []);
 
-  // 🔹 Autoplay conditionnel
   useEffect(() => {
     if (searchMode || showRecommendations) return;
 
@@ -53,7 +51,7 @@ function App() {
         const videoElement = entry.target;
         if (entry.isIntersecting && userInteracted) {
           videoElement.muted = true;
-          videoElement.play().catch((err) => console.warn("Lecture bloquée :", err));
+          videoElement.play().catch((err) => console.warn("Lecture bloquée:", err));
         } else {
           videoElement.pause();
         }
@@ -66,22 +64,21 @@ function App() {
       if (videoRef) observer.observe(videoRef);
     });
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+    };
   }, [videos, searchMode, showRecommendations, userInteracted]);
 
-  // 🔹 Service Worker PWA
   useEffect(() => {
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker
-          .register("/service-worker.js", { type: "module" })
-          .then((reg) => console.log("✅ Service Worker enregistré !", reg))
-          .catch((err) => console.error("❌ Erreur Service Worker :", err));
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js', { type: "module" })
+          .then(reg => console.log('✅ Service Worker enregistré avec succès !', reg))
+          .catch(err => console.error('❌ Erreur Service Worker :', err));
       });
     }
   }, []);
 
-  // 🔹 Prompt d'installation PWA
   useEffect(() => {
     window.addEventListener("beforeinstallprompt", (event) => {
       event.preventDefault();
@@ -94,14 +91,13 @@ function App() {
       installPrompt.prompt();
       installPrompt.userChoice.then((choice) => {
         if (choice.outcome === "accepted") {
-          console.log("✅ L'application a été installée.");
+          console.log("✅ L'utilisateur a installé l'application.");
         }
         setInstallPrompt(null);
       });
     }
   };
 
-  // 🔹 Swipes horizontaux/verticaux
   const handlers = useSwipeable({
     onSwipedLeft: () => setShowRecommendations(true),
     onSwipedRight: () => setShowRecommendations(false),
@@ -114,6 +110,7 @@ function App() {
   ) : (
     <div className="app" onClick={() => setUserInteracted(true)} {...handlers}>
       <TopNavbar className="top-navbar" />
+
       <AIOverlay isOpen={showAI} onClose={() => setShowAI(false)} />
 
       {installPrompt && (
@@ -125,23 +122,17 @@ function App() {
       {showRecommendations ? (
         <Recommendations />
       ) : searchMode ? (
-        <VideoExplorer groupedVideos={videos} />
+        <SearchView videos={videos} categories={categories} />
       ) : (
         <div className="container">
-          {Array.isArray(videos["Maquisards"]) && videos["Maquisards"].length > 0 ? (
-            videos["Maquisards"].map((video, index) => (
-              <VideoCard
-                key={index}
-                {...video}
-                setVideoRef={(ref) => (videoRefs.current[index] = ref)}
-                autoplay={index === 0}
-              />
-            ))
-          ) : (
-            <p style={{ color: "white", textAlign: "center" }}>
-              Aucune vidéo trouvée pour Maquisards.
-            </p>
-          )}
+          {videos["Maquisards"]?.map((video, index) => (
+            <VideoCard
+              key={index}
+              {...video}
+              setVideoRef={(ref) => (videoRefs.current[index] = ref)}
+              autoplay={index === 0}
+            />
+          ))}
         </div>
       )}
 
