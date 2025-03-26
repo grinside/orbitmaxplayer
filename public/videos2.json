@@ -1,0 +1,95 @@
+[
+  {
+    "groupId": "news",
+    "type": "chaine",
+    "category": "Info",
+    "items": [
+      {
+        "id": 1,
+        "url": "https://dchiplr12yf4h.cloudfront.net/euronews/africanews-fr/main/index.m3u8",
+        "profilePic": "...",
+        "username": "AfricaNews",
+        "description": "...",
+        "song": "...",
+        "likes": 430,
+        "comments": 13,
+        "saves": 23,
+        "shares": 1
+      },
+      {
+        "id": 2,
+        "url": "https://dchiplr12yf4h.cloudfront.net/33diffmedia/bblack-africa/index.m3u8",
+        "profilePic": "...",
+        "username": "bblack-africa",
+        "description": "...",
+        "song": "...",
+        "likes": "13.4K",
+        "comments": 3121,
+        "saves": 254,
+        "shares": 420
+      }
+    ]
+  },
+  {
+    "groupId": "sport",
+    "type": "chaine",
+    "category": "Sport",
+    "items": [
+      {
+        "id": 6,
+        "url": "https://dkr1evroiihuo.cloudfront.net/out/v1/c14045e26d56425fa55fc00640012542/index.m3u8",
+        "profilePic": "...",
+        "username": "W-SPORT",
+        "description": "...",
+        "song": "...",
+        "likes": "15K",
+        "comments": 3200,
+        "saves": 260,
+        "shares": 450
+      },
+      {
+        "id": 5,
+        "url": "https://d2zhiogsbueyp7.cloudfront.net/out/v1/6b6fda7f3d794551af65d3b091ad33c5/index.m3u8",
+        "profilePic": "...",
+        "username": "RTI 1",
+        "description": "...",
+        "song": "...",
+        "likes": 520,
+        "comments": 20,
+        "saves": 30,
+        "shares": 3
+      }
+    ]
+  },
+  {
+    "groupId": "maquisard-s2",
+    "type": "serie",
+    "category": "Série",
+    "items": [
+      {
+        "id": 8,
+        "url": "https://gcvip.cdb.cdn.orange.com/vod/catchup-nas/a0e3f1a9.../a0e3f1a9...m3u8",
+        "profilePic": "...",
+        "username": "MAQUISARD SAISON 2",
+        "description": "EPSIODE 1",
+        "song": "...",
+        "likes": 10120,
+        "comments": 250,
+        "saves": 1100,
+        "shares": 1000
+      },
+      {
+        "id": 12,
+        "url": "https://gcvip.cdb.cdn.orange.com/vod/catchup-nas/b7b2a1c6.../b7b2a1c6...m3u8",
+        "profilePic": "...",
+        "username": "MAQUISARD SAISON 2",
+        "description": "EPSIODE 2",
+        "song": "...",
+        "likes": 10120,
+        "comments": 250,
+        "saves": 1100,
+        "shares": 1000
+      }
+    ]
+  }
+]
